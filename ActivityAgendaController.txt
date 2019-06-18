@@ -1,0 +1,99 @@
+package com.yonyoucloud.ec.sns.conference.web.rest.management.agenda;
+
+import com.yonyoucloud.ec.sns.conference.data.dao.ActivityAgendaRepository;
+import com.yonyoucloud.ec.sns.conference.data.pojo.ActivityAgendaDO;
+import com.yonyoucloud.ec.sns.starter.authentication.web.AuthenticationRequired;
+import com.yonyoucloud.ec.sns.starter.authentication.web.AuthenticationType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * 大会活动的议程接口
+ *
+ * @author liuhaoi
+ */
+@Slf4j
+@RestController
+@RequestMapping("rest/v1/activity/{activityId}/agenda")
+@RequiredArgsConstructor
+@AuthenticationRequired(value = AuthenticationType.SELF_TOKEN)
+@Api(value = "大会活动的议程接口", description = "大会活动的议程接口")
+public class ActivityAgendaController {
+    private final ActivityAgendaRepository agendaRepository;
+
+    /**
+     * 列出活动的议程
+     *
+     * @param activityId 活动ID
+     * @return 议程
+     */
+    @ApiOperation(value = "列出活动的议程", notes = "列出活动的议程")
+    @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ActivityAgendaDO list(@PathVariable("activityId") String activityId) {
+
+        ActivityAgendaDO agendaDO = agendaRepository.queryById(activityId);
+
+        agendaDO.getAgendas().sort(Comparator.comparing(ActivityAgendaDO.Agenda :: getStartTime));
+
+        return agendaDO;
+    }
+
+    /**
+     * 创建议程事件
+     *
+     * @param activityId 活动ID
+     * @param agenda     事件
+     * @return 事件详情
+     */
+    @ApiOperation(value = "创建议程事件", notes = "创建议程事件")
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ActivityAgendaDO.Agenda create(@PathVariable("activityId") String activityId,
+                                          @RequestBody ActivityAgendaDO.Agenda agenda) {
+
+        agendaRepository.saveAgendaItem(activityId, agenda);
+        return agenda;
+    }
+
+    /**
+     * 更新议程事件
+     *
+     * @param activityId 活动ID
+     * @param itemId     事件ID
+     * @param agenda     事件详情
+     * @return 事件详情
+     */
+    @ApiOperation(value = "更新议程事件", notes = "更新议程事件")
+    @PutMapping(value = "/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ActivityAgendaDO.Agenda update(@PathVariable("activityId") String activityId,
+                                          @PathVariable("itemId") String itemId,
+                                          @RequestBody ActivityAgendaDO.Agenda agenda) {
+
+        agendaRepository.updateAgendaItem(activityId, itemId, agenda);
+
+        return agenda;
+    }
+
+
+    /**
+     * 删除议程事件
+     *
+     * @param activityId 活动ID
+     * @param itemId     事件ID
+     */
+    @ApiOperation(value = "删除议程事件", notes = "删除议程事件")
+    @DeleteMapping("/{itemId}")
+    public void delete(@PathVariable("activityId") String activityId, @PathVariable("itemId") String itemId) {
+
+        agendaRepository.deleteAgendaItem(activityId, itemId);
+    }
+
+}
