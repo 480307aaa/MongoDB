@@ -1,0 +1,94 @@
+package com.yonyoucloud.ec.sns.conference.data.dao.impl;
+
+import com.mongodb.WriteResult;
+import com.yonyoucloud.ec.sns.conference.data.dao.ActivityAgendaRepository;
+import com.yonyoucloud.ec.sns.conference.data.dao.common.AbstractMongoRepository;
+import com.yonyoucloud.ec.sns.conference.data.pojo.ActivityAgendaDO;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+/**
+ * @author yegk
+ */
+@Slf4j
+@Repository
+public class ActivityAgendaRepositoryImpl extends AbstractMongoRepository<ActivityAgendaDO> implements ActivityAgendaRepository {
+    public ActivityAgendaRepositoryImpl(MongoTemplate template) {
+        super(ActivityAgendaDO.class, template);
+    }
+
+    @Override
+    public ActivityAgendaDO queryById(String activityId) {
+        Criteria criteria = Criteria.where(ActivityAgendaDO.FIELD_ACTIVITY_ID).is(activityId);
+
+        return template.findOne(Query.query(criteria), clazz);
+    }
+
+    @Override
+    public int saveAgendaItem(String activityId, ActivityAgendaDO.Agenda agenda) {
+        if (StringUtils.isBlank(agenda.getId())){
+            agenda.setId(UUID.randomUUID().toString());
+        }
+        Criteria criteria = Criteria.where(ActivityAgendaDO.FIELD_ACTIVITY_ID).is(activityId);
+
+        Update update = new Update().push(ActivityAgendaDO.FIELD_AGENDAS,agenda);
+
+        WriteResult writeResult = template.upsert(Query.query(criteria), update, clazz);
+        int n = writeResult.getN();
+        if (n == 0){
+            log.warn("No matched activity {}  found when save activity agenda", activityId);
+        }
+
+        return n;
+    }
+
+    @Override
+    public void save(ActivityAgendaDO agendaDO) {
+
+        Long ts = System.currentTimeMillis();
+
+        agendaDO.setCtime(ts);
+        agendaDO.setUtime(ts);
+        template.save(agendaDO);
+    }
+
+    @Override
+    public int updateAgendaItem(String activityId, String itemId, ActivityAgendaDO.Agenda agenda) {
+        Criteria criteria = Criteria.where(ActivityAgendaDO.FIELD_ACTIVITY_ID).is(activityId)
+                .and(ActivityAgendaDO.FIELD_AGENDAS_ID).is(itemId);
+
+        agenda.setId(itemId);
+        Update update = new Update().set(ActivityAgendaDO.FIELD_AGENDAS + ".$", agenda);
+
+        WriteResult writeResult = template.updateFirst(Query.query(criteria), update, clazz);
+        int n = writeResult.getN();
+        if (n == 0){
+            log.warn("No matched activity {}  found when update activity agenda", activityId);
+        }
+        return n;
+    }
+
+    @Override
+    public int deleteAgendaItem(String activityId, String itemId) {
+        Criteria criteria = Criteria.where(ActivityAgendaDO.FIELD_ACTIVITY_ID).is(activityId);
+
+        ActivityAgendaDO.Agenda activityAgenda = new ActivityAgendaDO.Agenda();
+        activityAgenda.setId(itemId);
+
+        Update update = new Update().pull(ActivityAgendaDO.FIELD_AGENDAS, activityAgenda);
+
+        WriteResult writeResult = template.updateFirst(Query.query(criteria), update, clazz);
+        int n = writeResult.getN();
+        if (n == 0){
+            log.warn("No matched activity {}  found when delete activity agenda", activityId);
+        }
+        return n;
+    }
+}
