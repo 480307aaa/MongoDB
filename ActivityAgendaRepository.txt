@@ -1,0 +1,47 @@
+package com.yonyoucloud.ec.sns.conference.data.dao;
+
+import com.yonyoucloud.ec.sns.conference.data.pojo.ActivityAgendaDO;
+
+
+  @author yegk
+ 
+public interface ActivityAgendaRepository {
+
+    
+      活动的议程
+      @param activityId
+      @return
+     
+    ActivityAgendaDO queryById(String activityId);
+
+    
+      添加单个活动议程
+      @param activityId
+      @param agenda
+      @return
+     
+    int saveAgendaItem(String activityId, ActivityAgendaDO.Agenda agenda);
+
+    
+      添加活动议程
+      @param agendaDO
+     
+    void save(ActivityAgendaDO agendaDO);
+
+    
+      更新活动议程
+      @param activityId
+      @param itemId
+      @param agenda
+      @return
+     
+    int updateAgendaItem(String activityId, String itemId, ActivityAgendaDO.Agenda agenda);
+
+    
+      删除活动议程
+      @param activityId
+      @param itemId
+      @return
+     
+    int deleteAgendaItem(String activityId, String itemId);
+}
