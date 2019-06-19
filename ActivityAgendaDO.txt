@@ -1,0 +1,46 @@
+package com.yonyoucloud.ec.sns.conference.data.pojo;
+
+import com.yonyoucloud.ec.sns.conference.data.pojo.common.AbstractActivity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Date;
+import java.util.List;
+
+
+  @author liuhaoi
+ 
+@Document(collection = conference.agenda)
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class ActivityAgendaDO extends AbstractActivity {
+
+    public static final String FIELD_WITH_AM_PM_TITLE = withAmPmTitle;
+    public static final String FIELD_AGENDAS = agendas;
+    public static final String FIELD_AGENDAS_ID = agendas.id;
+    
+      是否区分上下午日程
+     
+    private Boolean withAmPmTitle;
+
+    private ListAgenda agendas;
+
+    @Data
+    public static class Agenda {
+
+        private String id;
+
+        private String title;
+
+        private String subTitle;
+
+        private Date startTime;
+
+        private Date endTime;
+    }
+
+
+}
