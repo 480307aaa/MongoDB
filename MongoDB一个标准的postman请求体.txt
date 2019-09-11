@@ -1,0 +1,26 @@
+{
+	"roomName":"群魔乱舞大会1",
+	"securityType":"0",
+	"type":"5d75ff08771f6b2390a3c3f4",
+	"capacity":"500",
+	
+	"scopes":[
+		"0","5d6f745b797dd1539278680b"
+	],
+	"location":"5d75c764771f6b2bd8576aff",
+	"mobile":"15584489439",
+	"enable":"1",
+	
+	"meetingDeviceVOS":[{
+		"id":"5d6f745b797dd1539278680b",
+		"deviceName":"白板10*5-2"
+	},
+	{
+		"id":"5d6f7924797dd153c3054add",
+		"deviceName":"投影仪epson10*5-2"
+	}
+	],
+	"deptName":"5d6f745b797dd1539278680b",
+	"env":"23lndjwcwdsve42fj",
+	"note":"相亲大会"
+}
