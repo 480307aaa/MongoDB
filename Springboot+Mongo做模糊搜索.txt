@@ -1,0 +1,18 @@
+    public List<MeetingSignInVO> query(String id, String keyWord) {
+
+        Pattern pattern = Pattern.compile("^.*" + keyWord + ".*$");
+
+        Query query = Query.query(Criteria.where(MeetingSignInDO.FIELD_MEETING_ID).is(id))
+                .addCriteria(Criteria.where(MeetingSignInDO.FIELD_NAME).regex(pattern));
+
+
+        List<MeetingSignInDO> meetingSignInDOS = template.find(query, MeetingSignInDO.class);
+        List<MeetingSignInVO> meetingSignInVOS = Lists.newArrayList();
+
+        meetingSignInDOS.forEach(meetingSignInDO -> {
+            MeetingSignInVO meetingSignInVO = new MeetingSignInVO();
+            BeanUtils.copyProperties(meetingSignInDO, meetingSignInVO);
+            meetingSignInVOS.add(meetingSignInVO);
+        });
+        return meetingSignInVOS;
+    }
